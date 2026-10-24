@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0d0c">
+<meta name="author" content="Odd_fill711">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23b6ff1a%27/%3E%3Ctext x=%2716%27 y=%2723%27 font-size=%2720%27 font-weight=%27900%27 text-anchor=%27middle%27 fill=%27%230b0d0c%27 font-family=%27Arial%27%3ER%3C/text%3E%3C/svg%3E">
+<title>RENDER RUSH — Gaming Emulation Community</title>
+<meta name="description" content="RENDER RUSH: push the hardware, break the limits, share the proof. A community for emulation and mobile gaming performance.">
+
+<style>
+/* =====================================================
+   1. DESIGN TOKENS (change colors here!)
+   ===================================================== */
+:root {
+  --bg: #0b0d0c;
+  --bg-2: #111513;
+  --panel: #161b18;
+  --panel-2: #1c231f;
+  --line: #2a332e;
+  --text: #f4f7f5;
+  --muted: #98a39d;
+  --accent: #b6ff1a;          /* electric lime */
+  --accent-dim: rgba(182,255,26,.14);
+  --warn: #ffb020;
+  --bad: #ff5c6c;
+  --ok: #b6ff1a;
+  --radius: 14px;
+  --maxw: 1160px;
+}
+
+/* =====================================================
+   2. BASE / RESET
+   ===================================================== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg);
+  background-image: radial-gradient(900px 400px at 80% -5%, rgba(182,255,26,.07), transparent 60%);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+}
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button[disabled] { opacity: .55; cursor: not-allowed; }
+h1, h2, h3 { line-height: 1.15; letter-spacing: -.02em; }
+[hidden] { display: none !important; }
+.wrap { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 16px; }
+section { padding: 56px 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Visible keyboard focus everywhere */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+/* =====================================================
+   3. REUSABLE PIECES
+   ===================================================== */
+.eyebrow { color: var(--accent); font-size: .78rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.section-head { margin-bottom: 24px; }
+.section-head h2 { font-size: clamp(1.6rem, 5vw, 2.3rem); margin: 6px 0 8px; }
+.section-head p { color: var(--muted); max-width: 640px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 20px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--panel); font-weight: 600; transition: transform .15s, border-color .15s, background .15s;
+}
+.btn:hover:not([disabled]) { border-color: #43524a; transform: translateY(-1px); }
+.btn-primary { background: var(--accent); color: #0b0d0c; border-color: var(--accent); box-shadow: 0 0 24px rgba(182,255,26,.25); }
+.btn-primary:hover:not([disabled]) { background: #c8ff4d; border-color: #c8ff4d; }
+.btn-sm { padding: 8px 12px; font-size: .88rem; }
+.btn-ghost { background: transparent; }
+
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .74rem; font-weight: 700; border: 1px solid; white-space: nowrap; }
+.b-playable { color: var(--ok); border-color: rgba(182,255,26,.4); background: var(--accent-dim); }
+.b-issues { color: var(--warn); border-color: rgba(255,176,32,.4); background: rgba(255,176,32,.1); }
+.b-untested { color: var(--muted); border-color: var(--line); background: rgba(255,255,255,.03); }
+.tag { font-size: .74rem; color: var(--muted); background: var(--bg-2); border: 1px solid var(--line); padding: 2px 8px; border-radius: 6px; }
+.demo-note { font-size: .8rem; color: var(--muted); border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; background: rgba(255,255,255,.02); }
+.demo-note strong { color: var(--warn); }
+.storage-warn { border-color: rgba(255,92,108,.5); color: #ffc2c8; margin-bottom: 14px; }
+
+.card { background: linear-gradient(180deg, var(--panel), var(--bg-2)); border: 1px solid var(--line); border-radius: var(--radius); }
+.grid { display: grid; gap: 16px; }
+.grid > * { min-width: 0; }  /* stops long words from stretching the layout on phones */
+
+/* Form controls */
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field label { font-size: .84rem; font-weight: 600; color: #d6ddd9; }
+.req { color: var(--accent); margin-left: 2px; }
+.field input, .field select, .field textarea {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; width: 100%; min-width: 0;
+}
+.field input::placeholder, .field textarea::placeholder { color: #66716b; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-dim); }
+.field .err { color: var(--bad); font-size: .8rem; min-height: 1em; }
+.field input[aria-invalid="true"], .field textarea[aria-invalid="true"], .field select[aria-invalid="true"] { border-color: var(--bad); }
+.field select option { background: var(--panel); }
+
+/* =====================================================
+   4. NAVIGATION
+   ===================================================== */
+header.nav { position: sticky; top: 0; z-index: 50; background: rgba(11,13,12,.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.nav-row { display: flex; align-items: center; gap: 10px; height: 64px; }
+.logo { font-weight: 900; letter-spacing: .06em; font-size: 1.05rem; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.logo-mark { width: 26px; height: 26px; border-radius: 7px; background: var(--accent); color: #0b0d0c; display: grid; place-items: center; font-weight: 900; font-size: .85rem; box-shadow: 0 0 16px rgba(182,255,26,.45); transform: skew(-8deg); }
+.logo b { color: var(--accent); }
+.spacer { flex: 1; }
+.nav-links { display: none; gap: 4px; }
+.nav-links a { padding: 8px 12px; border-radius: 8px; color: var(--muted); font-weight: 600; font-size: .94rem; }
+.nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--panel); }
+.icon-btn { width: 40px; height: 40px; display: grid; place-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font-size: 1.05rem; flex: none; }
+.icon-btn[aria-expanded="true"] { border-color: var(--accent); }
+#menuBtn { font-size: 1.2rem; }
+.mobile-menu { display: none; flex-direction: column; padding: 8px 16px 16px; border-top: 1px solid var(--line); background: var(--bg-2); }
+.mobile-menu.open { display: flex; }
+.mobile-menu a { padding: 14px 8px; border-bottom: 1px solid var(--line); font-weight: 600; }
+.searchbar { border-top: 1px solid var(--line); background: var(--bg-2); padding: 10px 0; }
+.searchbar form { display: flex; gap: 8px; }
+.searchbar input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; }
+.searchbar input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-dim); }
+
+/* =====================================================
+   5. HERO
+   ===================================================== */
+.hero { padding: 40px 0 24px; }
+.hero-grid { display: grid; gap: 32px; }
+.hero-grid > * { min-width: 0; }
+.pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 12px; font-size: .8rem; color: var(--muted); }
+.pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.hero h1 { font-size: clamp(2.3rem, 9vw, 4.2rem); margin: 16px 0; font-weight: 900; }
+.hero h1 span { color: var(--accent); }
+.hero p.lead { color: var(--muted); font-size: 1.05rem; max-width: 520px; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin: 26px 0 18px; }
+.motto { color: var(--muted); font-style: italic; font-size: .92rem; }
+
+.dash { padding: 18px; position: relative; overflow: hidden; }
+.dash::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+.dash-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
+.dash-title { font-weight: 700; }
+.dash-sub { font-size: .78rem; color: var(--muted); }
+.gauge-row { display: flex; gap: 16px; align-items: center; }
+.gauge { --v: 78; width: 112px; height: 112px; border-radius: 50%; flex: none;
+  background: conic-gradient(var(--accent) calc(var(--v) * 1%), var(--line) 0);
+  display: grid; place-items: center; box-shadow: 0 0 30px rgba(182,255,26,.15); }
+.gauge div { width: 88px; height: 88px; border-radius: 50%; background: var(--panel); display: grid; place-items: center; text-align: center; line-height: 1.1; }
+.gauge strong { font-size: 1.6rem; display: block; }
+.gauge small { color: var(--muted); font-size: .7rem; }
+.stat-list { flex: 1; min-width: 0; display: grid; gap: 10px; }
+.stat { display: grid; gap: 4px; font-size: .82rem; }
+.stat-line { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); }
+.stat-line b { color: var(--text); }
+.meter { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.meter span { display: block; height: 100%; background: linear-gradient(90deg, #6aa800, var(--accent)); border-radius: 99px; width: 0; animation: grow 1.2s ease-out forwards; }
+.meter.warm span { background: linear-gradient(90deg, #b87500, var(--warn)); }
+@keyframes grow { to { width: var(--w); } }
+.spark { display: flex; align-items: flex-end; gap: 4px; height: 56px; margin-top: 16px; }
+.spark span { flex: 1; background: var(--accent-dim); border-top: 2px solid var(--accent); border-radius: 3px 3px 0 0; height: var(--h); }
+
+/* =====================================================
+   6. SHOWCASE FEED
+   ===================================================== */
+.toolbar { display: grid; gap: 12px; margin-bottom: 14px; }
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
+.tab { white-space: nowrap; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); font-weight: 600; font-size: .88rem; flex: none; }
+.tab[aria-pressed="true"] { background: var(--accent); color: #0b0d0c; border-color: var(--accent); }
+.search-field { position: relative; }
+.search-field input { width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 12px; }
+.search-field input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-dim); }
+.result-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: var(--muted); font-size: .88rem; gap: 8px; flex-wrap: wrap; }
+
+.show-card { overflow: hidden; display: flex; flex-direction: column; }
+.thumb { height: 130px; position: relative; display: grid; place-items: center; overflow: hidden;
+  background: linear-gradient(135deg, hsl(var(--hue) 70% 22%), hsl(calc(var(--hue) + 40) 60% 8%)); }
+.thumb::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0 1px, transparent 1px 4px); }
+.thumb-text { font-size: 2.6rem; font-weight: 900; letter-spacing: .04em; color: rgba(255,255,255,.9); text-shadow: 0 0 24px hsl(var(--hue) 90% 60%); z-index: 1; }
+.thumb .corner { position: absolute; top: 10px; left: 10px; z-index: 2; font-size: .68rem; font-weight: 700; letter-spacing: .08em; background: rgba(0,0,0,.6); border: 1px solid var(--line); padding: 3px 8px; border-radius: 6px; color: var(--warn); }
+.thumb .corner.local { color: var(--accent); }
+.thumb .gpu-flag { position: absolute; top: 10px; right: 10px; z-index: 2; font-size: .7rem; font-weight: 700; background: rgba(0,0,0,.6); border: 1px solid var(--line); padding: 3px 8px; border-radius: 6px; }
+.show-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.show-title { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+.show-title h3 { font-size: 1.15rem; }
+.meta { color: var(--muted); font-size: .84rem; }
+.mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mini { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px; text-align: center; min-width: 0; }
+.mini b { display: block; font-size: 1rem; overflow-wrap: anywhere; }
+.mini small { color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.show-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 6px; }
+.like-btn[aria-pressed="true"] { color: var(--accent); border-color: rgba(182,255,26,.5); background: var(--accent-dim); }
+.empty { text-align: center; padding: 36px 16px; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--radius); display: grid; gap: 10px; justify-items: center; }
+.empty strong { display: block; color: var(--text); font-size: 1.05rem; }
+
+/* =====================================================
+   7. SUBMIT FORM
+   ===================================================== */
+.submit-msg { padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(182,255,26,.4); background: var(--accent-dim); margin-bottom: 14px; font-size: .92rem; }
+.form-card { padding: 18px; margin-top: 14px; }
+.form-grid { display: grid; gap: 14px; }
+.form-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.form-hint { color: var(--muted); font-size: .8rem; }
+
+/* =====================================================
+   8. COMPATIBILITY EXPLORER
+   ===================================================== */
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .82rem; color: var(--muted); margin-bottom: 16px; }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.legend .l-rep::before { background: var(--warn); }
+.legend .l-ver::before { background: var(--accent); }
+.filters { display: grid; gap: 12px; padding: 16px; margin-bottom: 14px; }
+.compat-card { padding: 14px; display: grid; gap: 6px; }
+.compat-top { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+.compat-card h3 { font-size: 1.02rem; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+
+/* =====================================================
+   9. COMMUNITY FEED
+   ===================================================== */
+.post { padding: 16px; display: grid; gap: 12px; }
+.post-head { display: flex; gap: 12px; align-items: center; }
+.post-head > div:last-child { min-width: 0; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #0b0d0c; background: hsl(var(--hue) 80% 60%); flex: none; }
+.post-head b { display: block; }
+.post-head small { color: var(--muted); }
+.post-text { overflow-wrap: anywhere; }
+.post-stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: .8rem; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; color: #d6ddd9; }
+.chip b { color: var(--accent); }
+.media-ph { height: 90px; border-radius: 10px; border: 1px dashed var(--line); display: grid; place-items: center; color: var(--muted); font-size: .82rem; text-align: center; padding: 8px;
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,.02) 0 10px, transparent 10px 20px); }
+.post-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.comments { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+.comment { background: var(--bg); border-radius: 10px; padding: 8px 12px; font-size: .9rem; overflow-wrap: anywhere; }
+.comment b { color: var(--accent); margin-right: 6px; }
+.comment small { color: var(--muted); }
+.comment-form { display: flex; gap: 8px; }
+.comment-form input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.comment-form input:focus { border-color: var(--accent); outline: none; }
+.local-flag { font-size: .7rem; color: var(--warn); border: 1px solid rgba(255,176,32,.4); border-radius: 6px; padding: 1px 6px; margin-left: 6px; }
+
+/* =====================================================
+   10. COMPARISON
+   ===================================================== */
+.compare-controls { margin-bottom: 16px; max-width: 360px; }
+.cmp-row { padding: 14px 16px; display: grid; gap: 10px; }
+.cmp-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cmp-head h3 { font-size: 1rem; }
+.cmp-grid { display: grid; gap: 10px; }
+.cmp-grid .stat-line { font-size: .8rem; }
+
+/* =====================================================
+   11. FOOTER, DIALOG, TOAST
+   ===================================================== */
+footer { border-top: 1px solid var(--line); background: var(--bg-2); padding: 40px 0 28px; margin-top: 24px; }
+.foot-grid { display: grid; gap: 24px; }
+.foot-grid h4 { margin-bottom: 10px; font-size: .9rem; }
+.foot-grid li { list-style: none; margin-bottom: 8px; }
+.foot-grid a, .foot-grid button.linkish { color: var(--muted); font-size: .9rem; background: none; border: 0; padding: 0; text-align: left; }
+.foot-grid a:hover, .foot-grid button.linkish:hover { color: var(--accent); }
+.foot-slogan { font-weight: 800; font-size: 1.15rem; }
+.foot-slogan span { color: var(--accent); }
+.foot-bottom { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
+
+dialog { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 16px; padding: 22px; width: min(92vw, 520px); max-height: 88vh; overflow: auto; margin: auto; }
+dialog::backdrop { background: rgba(0,0,0,.75); }
+dialog h3 { font-size: 1.3rem; margin-bottom: 4px; }
+dialog .dlg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+dialog .dlg-close { float: right; }
+dialog form { display: grid; gap: 12px; margin-top: 14px; }
+
+#toast { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 30px); opacity: 0; pointer-events: none; z-index: 100;
+  background: var(--panel-2); border: 1px solid var(--accent); color: var(--text); padding: 12px 18px; border-radius: 10px; font-size: .92rem; max-width: 92vw; transition: .25s; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+#toast.error { border-color: var(--bad); }
+#toast.info { border-color: var(--warn); }
+
+/* =====================================================
+   12. LARGER SCREENS (mobile-first: we only ADD here)
+   ===================================================== */
+@media (min-width: 640px) {
+  .grid.cols { grid-template-columns: repeat(2, 1fr); }
+  .filters { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .form-grid .span2 { grid-column: 1 / -1; }
+  .cmp-grid { grid-template-columns: repeat(3, 1fr); }
+  .foot-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
+  .toolbar { grid-template-columns: 1fr 320px; align-items: center; }
+}
+@media (min-width: 900px) {
+  .nav-links { display: flex; }
+  #menuBtn, .mobile-menu { display: none !important; }
+  .hero { padding-top: 70px; }
+  .hero-grid { grid-template-columns: 1.1fr 1fr; align-items: center; }
+  .grid.cols { grid-template-columns: repeat(3, 1fr); }
+  .filters { grid-template-columns: repeat(5, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .meter span { width: var(--w); }
+}
+</style>
+</head>
+
+<body>
+<noscript><p style="padding:16px;text-align:center">RENDER RUSH needs JavaScript turned on to work.</p></noscript>
+
+<!-- ================= NAVIGATION ================= -->
+<header class="nav">
+  <div class="wrap nav-row">
+    <a href="#home" class="logo" aria-label="RENDER RUSH home"><span class="logo-mark">R</span>RENDER <b>RUSH</b></a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#home" class="active">Home</a>
+      <a href="#explore">Explore</a>
+      <a href="#compatibility">Compatibility</a>
+      <a href="#community">Community</a>
+    </nav>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="searchBtn" type="button" aria-label="Search showcases" aria-expanded="false" aria-controls="searchBar">&#128269;</button>
+    <button class="btn btn-sm btn-primary" id="profileBtn" type="button">Sign in</button>
+    <button class="icon-btn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">&#9776;</button>
+  </div>
+
+  <!-- Search bar: opens when you tap the magnifier -->
+  <div class="searchbar" id="searchBar" hidden>
+    <div class="wrap">
+      <form id="navSearchForm" role="search">
+        <label class="sr-only" for="navSearch">Search showcases by game, device, GPU or emulator</label>
+        <input id="navSearch" type="search" placeholder="Search game, device, GPU or emulator" autocomplete="off">
+        <button class="btn btn-sm btn-primary" type="submit">Search</button>
+        <button class="btn btn-sm" type="button" id="navSearchClose" aria-label="Close search">&#10005;</button>
+      </form>
+    </div>
+  </div>
+
+  <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile">
+    <a href="#home">Home</a>
+    <a href="#explore">Explore</a>
+    <a href="#compatibility">Compatibility</a>
+    <a href="#community">Community</a>
+  </nav>
+</header>
+
+<main id="home">
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="pill"><i></i> Emulation community prototype</span>
+      <h1>Your device.<br>Your games.<br><span>Your limits.</span></h1>
+      <p class="lead">RENDER RUSH is where emulation fans share what runs, what struggles, and what shouldn't work at all. Post your FPS, settings and temps, compare GPUs, and help others get more out of their hardware.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#explore">Explore showcases</a>
+        <button class="btn" type="button" id="heroSubmit">Submit a test</button>
+      </div>
+      <p class="motto">"Push the hardware. Break the limits. Share the proof."</p>
+    </div>
+
+    <!-- Performance dashboard preview (static sample visual) -->
+    <div class="card dash" aria-label="Sample performance dashboard">
+      <div class="dash-top">
+        <div><div class="dash-title">Featured test run</div><div class="dash-sub">Sample dashboard • not a real benchmark</div></div>
+        <span class="badge b-issues">Demo</span>
+      </div>
+      <div class="gauge-row">
+        <div class="gauge" style="--v:78"><div><span><strong>47</strong><small>avg FPS</small></span></div></div>
+        <div class="stat-list">
+          <div class="stat"><div class="stat-line"><span>GPU load</span><b>91%</b></div><div class="meter"><span style="--w:91%"></span></div></div>
+          <div class="stat"><div class="stat-line"><span>Stability</span><b>82%</b></div><div class="meter"><span style="--w:82%"></span></div></div>
+          <div class="stat"><div class="stat-line"><span>Temp</span><b>44 °C</b></div><div class="meter warm"><span style="--w:62%"></span></div></div>
+        </div>
+      </div>
+      <div class="spark" aria-hidden="true">
+        <span style="--h:55%"></span><span style="--h:70%"></span><span style="--h:62%"></span><span style="--h:80%"></span><span style="--h:74%"></span>
+        <span style="--h:88%"></span><span style="--h:66%"></span><span style="--h:78%"></span><span style="--h:92%"></span><span style="--h:72%"></span><span style="--h:84%"></span><span style="--h:76%"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SHOWCASE FEED ================= -->
+<section id="explore">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Trending showcases</span>
+      <h2>What the community is pushing</h2>
+      <p>Filter by GPU family or search by game, device, GPU or emulator.</p>
+    </div>
+
+    <p class="demo-note storage-warn" id="storageWarn" hidden><strong>Saving is unavailable</strong> in this browser or preview. Everything still works, but your entries will disappear when you close or refresh the page. Try opening the file in Chrome.</p>
+
+    <p class="demo-note" style="margin-bottom:16px"><strong>Sample data.</strong> Cards marked "SAMPLE DATA" are made-up examples to show the layout. They are not verified benchmark results. Cards marked "LOCAL ENTRY" are ones you submitted, stored only in this browser.</p>
+
+    <div class="toolbar">
+      <div class="tabs" role="group" aria-label="Filter by GPU family" id="gpuTabs"></div>
+      <div class="search-field">
+        <label class="sr-only" for="showSearch">Search showcases</label>
+        <input id="showSearch" type="search" placeholder="Search game, device, GPU, emulator" autocomplete="off">
+      </div>
+    </div>
+    <div class="result-bar">
+      <span id="showCount" aria-live="polite"></span>
+      <span>
+        <button class="btn btn-sm btn-ghost" id="showClear" type="button">Clear filters</button>
+        <button class="btn btn-sm btn-ghost" id="resetBtn" type="button">Reset local data</button>
+      </span>
+    </div>
+    <div class="grid cols" id="showGrid"></div>
+  </div>
+</section>
+
+<!-- ================= SUBMIT A TEST ================= -->
+<section id="submit" style="padding-top:8px">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Submit a test</span>
+      <h2>Share your results</h2>
+      <p>Add your own showcase. It appears in the feed right away and is saved in this browser.</p>
+    </div>
+    <div class="submit-msg" id="submitMsg" role="status" aria-live="polite" hidden></div>
+    <button class="btn btn-primary" id="openForm" type="button" aria-expanded="false" aria-controls="formPanel">Open submission form</button>
+
+    <div id="formPanel" hidden>
+      <form class="card form-card" id="showForm" novalidate>
+        <p class="form-hint" style="margin-bottom:14px">Fields marked <span class="req">*</span> are required. Your entry stays on this device only. It is not shared with other people.</p>
+        <div class="form-grid">
+          <div class="field"><label for="sGame">Game name<span class="req">*</span></label>
+            <input id="sGame" maxlength="60" placeholder="e.g. Metal Gear Solid 4" aria-describedby="err-sGame" aria-required="true"><span class="err" id="err-sGame"></span></div>
+          <div class="field"><label for="sDevice">Device name<span class="req">*</span></label>
+            <input id="sDevice" maxlength="60" placeholder="e.g. Pixel 8" aria-describedby="err-sDevice" aria-required="true"><span class="err" id="err-sDevice"></span></div>
+
+          <div class="field"><label for="sChipset">Chipset<span class="req">*</span></label>
+            <input id="sChipset" maxlength="40" placeholder="e.g. Snapdragon 8 Gen 2" aria-describedby="err-sChipset" aria-required="true"><span class="err" id="err-sChipset"></span></div>
+          <div class="field"><label for="sGpu">GPU family<span class="req">*</span></label>
+            <select id="sGpu" aria-describedby="err-sGpu" aria-required="true">
+              <option value="">Choose GPU family...</option><option value="Adreno">Adreno</option><option value="Mali">Mali</option><option value="Other">Other</option>
+            </select><span class="err" id="err-sGpu"></span></div>
+
+          <div class="field"><label for="sEmu">Emulator<span class="req">*</span></label>
+            <input id="sEmu" maxlength="40" placeholder="e.g. Dolphin" aria-describedby="err-sEmu" aria-required="true"><span class="err" id="err-sEmu"></span></div>
+          <div class="field"><label for="sRes">Resolution</label>
+            <select id="sRes" aria-describedby="err-sRes">
+              <option value="Unknown">Unknown</option><option>480p</option><option>540p</option><option>720p</option><option>900p</option><option selected>1080p</option><option>1440p</option><option>4K</option>
+            </select><span class="err" id="err-sRes"></span></div>
+
+          <div class="field"><label for="sFps">Average FPS (optional)</label>
+            <input id="sFps" type="number" inputmode="numeric" min="1" max="240" step="1" placeholder="1–240" aria-describedby="err-sFps"><span class="err" id="err-sFps"></span></div>
+          <div class="field"><label for="sTemp">Temperature °C (optional)</label>
+            <input id="sTemp" type="number" inputmode="numeric" min="10" max="120" step="1" placeholder="10–120" aria-describedby="err-sTemp"><span class="err" id="err-sTemp"></span></div>
+
+          <div class="field span2"><label for="sStatus">Compatibility status<span class="req">*</span></label>
+            <select id="sStatus" aria-describedby="err-sStatus" aria-required="true">
+              <option value="">Choose status...</option><option value="playable">Playable</option><option value="issues">Runs with Issues</option><option value="untested">Not Tested</option>
+            </select><span class="err" id="err-sStatus"></span></div>
+
+          <div class="field span2"><label for="sText">Description<span class="req">*</span> <small id="sCount" style="color:var(--muted);font-weight:400">0/300</small></label>
+            <textarea id="sText" rows="4" maxlength="300" placeholder="Settings used, issues, tips (10–300 characters)" aria-describedby="err-sText" aria-required="true"></textarea><span class="err" id="err-sText"></span></div>
+
+          <div class="span2 form-actions">
+            <button class="btn btn-primary" id="sSubmit" type="submit">Add to showcases</button>
+            <button class="btn" id="sReset" type="button">Reset form</button>
+            <button class="btn btn-ghost" id="sCancel" type="button">Cancel</button>
+            <button class="btn btn-ghost" id="sAttach" type="button">Attach screenshot / video</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMPATIBILITY ================= -->
+<section id="compatibility">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Compatibility explorer</span>
+      <h2>Will it run?</h2>
+      <p>Filter the compatibility list by game, GPU family, status and source. Your own submissions show up here too.</p>
+    </div>
+    <div class="legend">
+      <span class="l-rep">Community-reported (not independently checked)</span>
+      <span class="l-ver">Independently verified (none exist in this prototype)</span>
+    </div>
+    <form class="card filters" id="compatFilters" onsubmit="return false">
+      <div class="field"><label for="cSearch">Search</label><input id="cSearch" type="search" placeholder="Game, device, emulator" autocomplete="off"></div>
+      <div class="field"><label for="cGame">Game</label><select id="cGame"></select></div>
+      <div class="field"><label for="cGpu">GPU family</label>
+        <select id="cGpu"><option value="">All GPU families</option><option value="Adreno">Adreno</option><option value="Mali">Mali</option><option value="Other">Other</option></select></div>
+      <div class="field"><label for="cStatus">Status</label>
+        <select id="cStatus"><option value="">All statuses</option><option value="playable">Playable</option><option value="issues">Runs with Issues</option><option value="untested">Not Tested</option></select></div>
+      <div class="field"><label for="cSource">Source</label>
+        <select id="cSource"><option value="">All sources</option><option value="reported">Community-reported</option><option value="verified">Independently verified</option></select></div>
+    </form>
+    <div class="result-bar"><span id="compatCount" aria-live="polite"></span><button class="btn btn-sm btn-ghost" id="cClear" type="button">Clear filters</button></div>
+    <div class="grid cols" id="compatGrid"></div>
+  </div>
+</section>
+
+<!-- ================= COMMUNITY ================= -->
+<section id="community">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Community feed</span>
+      <h2>Share the proof</h2>
+      <p>Recent posts and conversations. Your submitted tests appear here as posts.</p>
+    </div>
+    <p class="demo-note" style="margin-bottom:18px"><strong>Frontend demo.</strong> Likes, posts and comments are saved only in <em>this browser</em> (localStorage). They are not shared with anyone else. Real sharing needs a backend server and database.</p>
+    <div class="result-bar"><span id="feedCount"></span><button class="btn btn-sm btn-primary" id="feedSubmit" type="button">Submit a test</button></div>
+    <div class="grid" id="feed"></div>
+  </div>
+</section>
+
+<!-- ================= COMPARISON ================= -->
+<section id="compare">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Performance comparison</span>
+      <h2>Side by side</h2>
+      <p>Pick a game to compare reported results across devices.</p>
+    </div>
+    <div class="field compare-controls"><label for="cmpGame">Game</label><select id="cmpGame"></select></div>
+    <div class="legend">
+      <span class="l-rep">Reported by a user (unverified)</span>
+      <span class="l-ver">Independently verified (needs a real backend and testing process)</span>
+    </div>
+    <div class="grid" id="cmpList"></div>
+  </div>
+</section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo" style="margin-bottom:12px"><span class="logo-mark">R</span>RENDER <b>RUSH</b></div>
+        <p class="foot-slogan">Push the hardware. <span>Share the proof.</span></p>
+        <p class="meta" style="margin-top:10px">Built by <b id="creator" style="color:var(--accent)"></b></p>
+      </div>
+      <div><h4>Community</h4><ul>
+        <li><button class="linkish" type="button" data-info="about">About</button></li>
+        <li><button class="linkish" type="button" data-info="guidelines">Community guidelines</button></li></ul></div>
+      <div><h4>Legal</h4><ul>
+        <li><button class="linkish" type="button" data-info="privacy">Privacy</button></li>
+        <li><button class="linkish" type="button" data-info="contact">Contact</button></li></ul></div>
+      <div><h4>Demo</h4><ul>
+        <li><button class="linkish" type="button" id="footReset">Reset local data</button></li>
+        <li><a href="#home">Back to top</a></li></ul></div>
+    </div>
+    <p class="foot-bottom">RENDER RUSH is a frontend prototype with sample data. It is not affiliated with any game publisher, console maker or emulator project. Only play games you legally own.</p>
+  </div>
+</footer>
+
+<!-- ================= DIALOGS ================= -->
+<dialog id="detailDlg" aria-labelledby="dTitle"></dialog>
+<dialog id="infoDlg" aria-labelledby="iTitle"></dialog>
+
+<dialog id="profileDlg" aria-labelledby="prTitle">
+  <button class="btn btn-sm dlg-close" id="prClose" type="button">Close</button>
+  <h3 id="prTitle">Profile (demo)</h3>
+  <p class="meta">Real sign-in needs an authentication provider and a server. This demo just remembers a display name in your browser.</p>
+  <form id="profileForm" novalidate>
+    <div class="field"><label for="prName">Display name</label><input id="prName" maxlength="20" placeholder="2–20 characters"><span class="err" id="ePr"></span></div>
+    <button class="btn btn-primary" type="submit">Save name</button>
+    <button class="btn btn-ghost" type="button" id="prOut">Sign out</button>
+  </form>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =====================================================
+   RENDER RUSH — all JavaScript
+   Sections:
+   1. Sample data        2. Helpers          3. Storage
+   4. Data helpers       5. Rendering        6. Submit form
+   7. Events             8. Start
+   ===================================================== */
+
+/* ---------- 1. SAMPLE DATA (all illustrative) ---------- */
+// >>> Change this one line to change the name shown on the site <<<
+const CREATOR = "Odd_fill711";
+
+const GPUS = ["Mali", "Adreno", "Other"];
+const RES_LIST = ["Unknown", "480p", "540p", "720p", "900p", "1080p", "1440p", "4K"];
+const STATUS = {
+  playable: { label: "Playable",         cls: "b-playable" },
+  issues:   { label: "Runs with Issues", cls: "b-issues" },
+  untested: { label: "Not Tested",       cls: "b-untested" }
+};
+const STATUS_KEYS = Object.keys(STATUS);
+
+// "hue" is a color number (0-360) used for the CSS-made thumbnails.
+const SHOWCASES = [
+  { id:"s1", game:"GTA V", device:"Sample Phone A", chipset:"Snapdragon-class", gpu:"Adreno", emu:"Winlator", fps:32, res:"720p", temp:46, status:"issues", hue:20, likes:128,
+    desc:"Demo entry: open-world driving with reduced shadows and draw distance.", tags:["Open world","Low settings"] },
+  { id:"s2", game:"God of War III", device:"Sample Handheld B", chipset:"Snapdragon-class", gpu:"Adreno", emu:"RPCS3 (PC build)", fps:27, res:"720p", temp:null, status:"issues", hue:0, likes:94,
+    desc:"Demo entry: boss fight with frame pacing issues. Temperature not reported.", tags:["PS3","Action"] },
+  { id:"s3", game:"Mario Kart Wii", device:"Sample Phone C", chipset:"Dimensity-class", gpu:"Mali", emu:"Dolphin", fps:60, res:"1080p", temp:41, status:"playable", hue:200, likes:211,
+    desc:"Demo entry: locked frame rate in menus and races on default settings.", tags:["Wii","Racing"] },
+  { id:"s4", game:"Persona 4 Golden", device:"Sample Tablet D", chipset:"Exynos-class", gpu:"Mali", emu:"PPSSPP", fps:60, res:"1440p", temp:38, status:"playable", hue:50, likes:76,
+    desc:"Demo entry: upscaled textures with a steady frame rate.", tags:["PSP","RPG"] },
+  { id:"s5", game:"Red Dead Redemption", device:"Sample Handheld E", chipset:"Ryzen-class", gpu:"Other", emu:"RPCS3 (PC build)", fps:22, res:"720p", temp:63, status:"issues", hue:15, likes:58,
+    desc:"Demo entry: heavy CPU load, stutters in towns.", tags:["PS3","Western"] },
+  { id:"s6", game:"Super Mario Odyssey", device:"Sample Tablet F", chipset:"Snapdragon-class", gpu:"Adreno", emu:"Switch emulator", fps:30, res:"1080p", temp:49, status:"playable", hue:140, likes:143,
+    desc:"Demo entry: stable 30 FPS target in most kingdoms.", tags:["Switch","Platformer"] },
+  { id:"s7", game:"Kingdom Hearts II", device:"Sample Phone G", chipset:"Dimensity-class", gpu:"Mali", emu:"NetherSX2", fps:45, res:"1080p", temp:43, status:"playable", hue:260, likes:67,
+    desc:"Demo entry: cutscenes smooth, some effects flicker.", tags:["PS2","RPG"] },
+  { id:"s8", game:"Metroid Prime", device:"Sample Handheld H", chipset:"Integrated-graphics-class", gpu:"Other", emu:"Dolphin", fps:null, res:"Unknown", temp:null, status:"untested", hue:180, likes:21,
+    desc:"Demo entry: nobody has reported results for this setup yet.", tags:["GameCube","Adventure"] }
+];
+
+// Extra compatibility rows (all community-style sample reports)
+const COMPAT = [
+  { game:"GTA V", device:"Sample Phone A", gpu:"Adreno", emu:"Winlator", status:"issues", fps:32 },
+  { game:"GTA V", device:"Sample Handheld E", gpu:"Other", emu:"Winlator", status:"playable", fps:48 },
+  { game:"GTA V", device:"Sample Phone G", gpu:"Mali", emu:"Winlator", status:"untested", fps:null },
+  { game:"God of War III", device:"Sample Handheld B", gpu:"Adreno", emu:"RPCS3 (PC build)", status:"issues", fps:27 },
+  { game:"God of War III", device:"Sample Phone C", gpu:"Mali", emu:"RPCS3 (PC build)", status:"untested", fps:null },
+  { game:"Mario Kart Wii", device:"Sample Phone C", gpu:"Mali", emu:"Dolphin", status:"playable", fps:60 },
+  { game:"Mario Kart Wii", device:"Sample Phone A", gpu:"Adreno", emu:"Dolphin", status:"playable", fps:60 },
+  { game:"Persona 4 Golden", device:"Sample Tablet D", gpu:"Mali", emu:"PPSSPP", status:"playable", fps:60 },
+  { game:"Red Dead Redemption", device:"Sample Handheld E", gpu:"Other", emu:"RPCS3 (PC build)", status:"issues", fps:22 },
+  { game:"Red Dead Redemption", device:"Sample Phone G", gpu:"Mali", emu:"RPCS3 (PC build)", status:"untested", fps:null },
+  { game:"Super Mario Odyssey", device:"Sample Tablet F", gpu:"Adreno", emu:"Switch emulator", status:"playable", fps:30 },
+  { game:"Super Mario Odyssey", device:"Sample Phone C", gpu:"Mali", emu:"Switch emulator", status:"issues", fps:19 },
+  { game:"Kingdom Hearts II", device:"Sample Phone G", gpu:"Mali", emu:"NetherSX2", status:"playable", fps:45 },
+  { game:"Metroid Prime", device:"Sample Handheld H", gpu:"Other", emu:"Dolphin", status:"untested", fps:null }
+];
+
+// Comparison: "stab" is a 0-100 stability score reported by users (unverified)
+const COMPARE = [
+  { game:"GTA V", device:"Sample Phone A", fps:32, res:"720p", stab:70 },
+  { game:"GTA V", device:"Sample Handheld E", fps:48, res:"900p", stab:84 },
+  { game:"GTA V", device:"Sample Phone G", fps:24, res:"540p", stab:55 },
+  { game:"Mario Kart Wii", device:"Sample Phone C", fps:60, res:"1080p", stab:96 },
+  { game:"Mario Kart Wii", device:"Sample Phone A", fps:60, res:"1080p", stab:92 },
+  { game:"Mario Kart Wii", device:"Sample Tablet D", fps:60, res:"1440p", stab:98 },
+  { game:"Super Mario Odyssey", device:"Sample Tablet F", fps:30, res:"1080p", stab:80 },
+  { game:"Super Mario Odyssey", device:"Sample Phone C", fps:19, res:"720p", stab:48 }
+];
+
+const SEED_POSTS = [
+  { id:"p1", user:"SampleUser_01", game:"Mario Kart Wii", device:"Sample Phone C", emu:"Dolphin", fps:60, res:"1080p", temp:41, hue:200,
+    text:"Demo post: default settings, no tweaks needed. Phone stayed cool for 30 minutes.", time:Date.now()-1000*60*45, likes:12, seed:true },
+  { id:"p2", user:"SampleUser_02", game:"GTA V", device:"Sample Phone A", emu:"Winlator", fps:32, res:"720p", temp:46, hue:20,
+    text:"Demo post: dropped shadows to low and capped frame rate. Tip: close background apps first.", time:Date.now()-1000*60*60*5, likes:7, seed:true },
+  { id:"p3", user:"SampleUser_03", game:"Persona 4 Golden", device:"Sample Tablet D", emu:"PPSSPP", fps:60, res:"1440p", temp:null, hue:50,
+    text:"Demo post: 3x internal resolution looks great on a big screen. Temperature not measured.", time:Date.now()-1000*60*60*26, likes:19, seed:true }
+];
+
+const INFO = {
+  about:{ t:"About RENDER RUSH", b:"RENDER RUSH is a prototype for a community of emulation fans who share performance results and help each other. This version is frontend-only. Built by " + CREATOR + "." },
+  guidelines:{ t:"Community guidelines", b:"Be respectful. Share honest results. No piracy links or requests: only discuss games you own. Help newcomers. (Placeholder text.)" },
+  privacy:{ t:"Privacy", b:"This demo stores your likes, entries and display name only in your own browser using localStorage. Nothing is sent anywhere. (Placeholder policy.)" },
+  contact:{ t:"Contact", b:"Placeholder: contact@example.com (not a real address). A real site would link to a contact form or support channel." }
+};
+
+/* ---------- 2. HELPERS ---------- */
+const $ = (id) => document.getElementById(id);
+
+// Safe element builder: text is set with textContent, never innerHTML.
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  for (const k in (props || {})) {
+    const v = props[k];
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k === "style") e.setAttribute("style", v);
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) e.setAttribute(k, v);
+  }
+  kids.flat().forEach(c => { if (c != null) e.append(c.nodeType ? c : document.createTextNode(String(c))); });
+  return e;
+}
+function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+function uniq(arr) { return [...new Set(arr)]; }
+function hueFrom(str) { let n = 0; for (const c of str) n = (n * 31 + c.charCodeAt(0)) % 360; return n; }
+function initials(name) { return name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase() || "?"; }
+function ago(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s / 60) + " min ago";
+  if (s < 86400) return Math.floor(s / 3600) + " h ago";
+  return Math.floor(s / 86400) + " d ago";
+}
+function gpuLabel(g) { return g === "Other" ? "Other GPU" : g; }
+
+let toastTimer;
+function toast(msg, kind) {            // kind: undefined (ok), "error" or "info"
+  const t = $("toast");
+  t.textContent = msg;
+  t.className = "show" + (kind ? " " + kind : "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ""; }, 3200);
+}
+// For buttons whose feature needs a server
+function notReady(feature) { toast(feature + " isn't available in this prototype. It needs a backend server.", "info"); }
+
+function openDialog(d) { if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", ""); }
+function closeDialog(d) { if (typeof d.close === "function") d.close(); else d.removeAttribute("open"); }
+
+function reducedMotion() { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+function goTo(id) {
+  const el = $(id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" });
+}
+function badge(status) { return h("span", { class: "badge " + STATUS[status].cls, text: STATUS[status].label }); }
+
+/* ---------- 3. STORAGE (localStorage, with safety) ---------- */
+// Old v1 keys are listed so "Reset" can clean them up too.
+const KEYS = { likes: "rr2_likes", entries: "rr2_entries", comments: "rr2_comments", name: "rr2_name" };
+const OLD_KEYS = ["rr_likes", "rr_posts", "rr_comments", "rr_name"];
+
+// Test once whether localStorage works at all (it can be blocked or full).
+let storageOK = (function () {
+  try { const k = "__rr_test"; localStorage.setItem(k, "1"); localStorage.removeItem(k); return true; }
+  catch (e) { return false; }
+})();
+
+function load(key, fallback) {
+  if (!storageOK) return fallback;
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }          // missing or corrupted data
+}
+function save(key, val) {
+  if (!storageOK) return;
+  try { localStorage.setItem(key, JSON.stringify(val)); }
+  catch (e) { storageOK = false; $("storageWarn").hidden = false; toast("Couldn't save. Changes will last only until you close the page.", "error"); }
+}
+
+/* ---------- 4. DATA HELPERS ---------- */
+// Cleaning functions: anything loaded from storage is treated as untrusted.
+function cleanStr(v, max) { return typeof v === "string" ? v.trim().slice(0, max) : ""; }
+function cleanEntry(o) {
+  if (!o || typeof o !== "object") return null;
+  const e = {
+    id: cleanStr(o.id, 30), game: cleanStr(o.game, 60), device: cleanStr(o.device, 60), chipset: cleanStr(o.chipset, 40),
+    emu: cleanStr(o.emu, 40), desc: cleanStr(o.desc, 300), author: cleanStr(o.author, 20) || "You",
+    gpu: o.gpu, status: o.status, res: o.res, fps: o.fps, temp: o.temp, time: o.time, hue: o.hue
+  };
+  if (!/^[A-Za-z0-9_-]{1,30}$/.test(e.id)) return null;
+  if (!e.game || !e.device || !e.chipset || !e.emu || !e.desc) return null;
+  if (!GPUS.includes(e.gpu) || !STATUS_KEYS.includes(e.status) || !RES_LIST.includes(e.res)) return null;
+  e.fps = (Number.isInteger(e.fps) && e.fps >= 1 && e.fps <= 240) ? e.fps : null;
+  e.temp = (Number.isInteger(e.temp) && e.temp >= 10 && e.temp <= 120) ? e.temp : null;
+  if (typeof e.time !== "number" || !isFinite(e.time)) e.time = Date.now();
+  e.hue = Number.isInteger(e.hue) ? ((e.hue % 360) + 360) % 360 : hueFrom(e.game);
+  e.sample = false;
+  e.likes = 0;
+  return e;
+}
+function loadEntries() {
+  const raw = load(KEYS.entries, []);
+  return Array.isArray(raw) ? raw.map(cleanEntry).filter(Boolean).slice(0, 50) : [];
+}
+function loadLikes() {
+  const raw = load(KEYS.likes, {}), out = Object.create(null);
+  if (raw && typeof raw === "object") Object.keys(raw).forEach(k => { if (/^[A-Za-z0-9_-]{1,30}$/.test(k) && raw[k] === true) out[k] = true; });
+  return out;
+}
+function loadComments() {
+  const raw = load(KEYS.comments, {}), out = Object.create(null);
+  if (raw && typeof raw === "object") Object.keys(raw).forEach(k => {
+    if (!/^[A-Za-z0-9_-]{1,30}$/.test(k) || !Array.isArray(raw[k])) return;
+    out[k] = raw[k].slice(0, 100).map(c => ({ user: cleanStr(c && c.user, 20) || "You", text: cleanStr(c && c.text, 200), time: (c && typeof c.time === "number") ? c.time : Date.now() })).filter(c => c.text);
+  });
+  return out;
+}
+
+// App state
+let userEntries = loadEntries();                  // showcases you submitted
+let likes = loadLikes();                          // { id: true }
+let comments = loadComments();                    // { id: [ {user,text,time} ] }
+let myName = cleanStr(load(KEYS.name, ""), 20);
+let openComments = Object.create(null);
+const filters = { gpu: "All", query: "" };
+const GPU_TABS = [["All", "All showcases"], ["Mali", "Mali"], ["Adreno", "Adreno"], ["Other", "Other GPUs"], ["Liked", "Liked"]];
+
+// Everything shown in the showcase feed (your entries first)
+function allShowcases() { return [...userEntries, ...SHOWCASES.map(s => ({ ...s, sample: true }))]; }
+function tagsFor(s) { return s.sample ? s.tags : ["Your entry", gpuLabel(s.gpu), STATUS[s.status].label]; }
+function matchesQuery(s, q) { return [s.game, s.device, s.chipset, s.gpu, s.emu].join(" ").toLowerCase().includes(q); }
+function visibleShowcases() {
+  const q = filters.query.trim().toLowerCase();
+  return allShowcases().filter(s => {
+    if (filters.gpu === "Liked") { if (!likes[s.id]) return false; }
+    else if (filters.gpu !== "All" && s.gpu !== filters.gpu) return false;
+    return !q || matchesQuery(s, q);
+  });
+}
+function compatEntries() {
+  const mine = userEntries.map(e => ({ game: e.game, device: e.device, gpu: e.gpu, emu: e.emu, status: e.status, fps: e.fps, mine: true }));
+  return [...mine, ...COMPAT.map(c => ({ ...c, mine: false }))];
+}
+function compareEntries() {
+  const mine = userEntries.filter(e => e.fps != null).map(e => ({ game: e.game, device: e.device, fps: e.fps, res: e.res, stab: null, mine: true }));
+  return [...mine, ...COMPARE.map(c => ({ ...c, mine: false }))];
+}
+function allPosts() {
+  const mine = userEntries.map(e => ({ id: e.id, user: e.author, game: e.game, device: e.device, emu: e.emu, fps: e.fps, res: e.res, temp: e.temp, hue: e.hue, text: e.desc, time: e.time, likes: 0, seed: false }));
+  return [...mine, ...SEED_POSTS].sort((a, b) => b.time - a.time);
+}
+
+/* ---------- 5. RENDERING ---------- */
+
+// Re-draws everything that depends on the data (used after submit, delete, reset)
+function renderAll() {
+  fillGameSelect($("cGame"), "All games", uniq(compatEntries().map(c => c.game)).sort());
+  fillGameSelect($("cmpGame"), null, uniq(compareEntries().map(c => c.game)).sort());
+  renderTabs(); renderShowcases(); renderCompat(); renderFeed(); renderCompare();
+}
+// Rebuilds a <select> but keeps the current choice if it still exists
+function fillGameSelect(sel, firstLabel, games) {
+  const prev = sel.value;
+  clear(sel);
+  if (firstLabel) sel.append(h("option", { value: "", text: firstLabel }));
+  games.forEach(g => sel.append(h("option", { value: g, text: g })));
+  if (games.includes(prev)) sel.value = prev;
+}
+
+/* --- Like button (shared by showcase cards and community posts) --- */
+function likeButton(ctx, id, base) {
+  const liked = !!likes[id], count = base + (liked ? 1 : 0), key = ctx + "-" + id;
+  return h("button", { class: "btn btn-sm like-btn", type: "button", "data-key": key, "aria-pressed": String(liked),
+    "aria-label": (liked ? "Unlike" : "Like") + ", " + count + (count === 1 ? " like" : " likes"),
+    onclick: () => { toggleLike(id); refocus(key); } }, (liked ? "♥ " : "♡ ") + count);
+}
+function toggleLike(id) {
+  if (likes[id]) delete likes[id]; else likes[id] = true;
+  save(KEYS.likes, likes);
+  renderShowcases(); renderFeed();
+}
+// After a re-draw, put keyboard focus back on the same button
+function refocus(key) {
+  const el = document.querySelector('[data-key="' + key + '"]');
+  if (el) el.focus();
+}
+
+/* --- GPU filter chips --- */
+function renderTabs() {
+  const box = $("gpuTabs"); clear(box);
+  GPU_TABS.forEach(([value, label]) => {
+    box.append(h("button", { class: "tab", type: "button", "data-key": "tab-" + value, "aria-pressed": String(filters.gpu === value), text: label,
+      onclick: () => { filters.gpu = value; renderTabs(); renderShowcases(); refocus("tab-" + value); } }));
+  });
+}
+
+/* --- Showcase cards --- */
+function renderShowcases() {
+  const grid = $("showGrid"); clear(grid);
+  const list = visibleShowcases();
+  const q = filters.query.trim();
+  $("showCount").textContent = list.length + " of " + allShowcases().length + " showcases" + (q ? " matching \"" + q + "\"" : "");
+  if (!list.length) {
+    let msg = "Try a different search or filter.";
+    if (filters.gpu === "Liked" && !q) msg = "Tap the heart on a showcase to save it here.";
+    grid.append(h("div", { class: "empty", style: "grid-column:1/-1" },
+      h("strong", { text: "No showcases found" }), h("span", { text: msg }),
+      h("button", { class: "btn btn-sm", type: "button", onclick: clearShowFilters }, "Clear filters")));
+    return;
+  }
+  list.forEach(s => {
+    grid.append(h("article", { class: "card show-card" },
+      h("div", { class: "thumb", style: "--hue:" + s.hue },
+        h("span", { class: "corner" + (s.sample ? "" : " local"), text: s.sample ? "SAMPLE DATA" : "LOCAL ENTRY" }),
+        h("span", { class: "gpu-flag", text: gpuLabel(s.gpu) }),
+        h("span", { class: "thumb-text", text: initials(s.game) })),
+      h("div", { class: "show-body" },
+        h("div", { class: "show-title" }, h("h3", { text: s.game }), badge(s.status)),
+        h("p", { class: "meta", text: s.device + " • " + s.chipset }),
+        h("p", { class: "meta", text: "Emulator: " + s.emu }),
+        h("div", { class: "mini-stats" },
+          h("div", { class: "mini" }, h("b", { text: s.fps == null ? "n/a" : s.fps }), h("small", { text: "FPS" })),
+          h("div", { class: "mini" }, h("b", { text: s.res }), h("small", { text: "Res" })),
+          h("div", { class: "mini" }, h("b", { text: s.temp == null ? "n/a" : s.temp + "°C" }), h("small", { text: "Temp" }))),
+        h("p", { text: s.desc }),
+        h("div", { class: "tags" }, tagsFor(s).map(t => h("span", { class: "tag", text: t }))),
+        h("div", { class: "show-actions" },
+          likeButton("card", s.id, s.likes),
+          h("button", { class: "btn btn-sm", type: "button", onclick: () => openDetails(s) }, "View details"),
+          h("button", { class: "btn btn-sm btn-ghost", type: "button", onclick: () => notReady("Sharing a link") }, "Share"),
+          s.sample ? null : h("button", { class: "btn btn-sm btn-ghost", type: "button", onclick: () => deleteEntry(s.id) }, "Delete")))));
+  });
+}
+function openDetails(s) {
+  const d = $("detailDlg"); clear(d);
+  d.append(
+    h("button", { class: "btn btn-sm dlg-close", type: "button", onclick: () => closeDialog(d) }, "Close"),
+    h("h3", { id: "dTitle", text: s.game }),
+    h("p", { class: "meta", text: s.device + " • " + s.emu }),
+    h("div", { class: "dlg-grid" },
+      h("div", { class: "mini" }, h("b", { text: s.fps == null ? "Not reported" : s.fps }), h("small", { text: "Reported FPS" })),
+      h("div", { class: "mini" }, h("b", { text: s.res }), h("small", { text: "Resolution" })),
+      h("div", { class: "mini" }, h("b", { text: s.chipset }), h("small", { text: "Chipset" })),
+      h("div", { class: "mini" }, h("b", { text: gpuLabel(s.gpu) }), h("small", { text: "GPU family" })),
+      h("div", { class: "mini" }, h("b", { text: s.temp == null ? "Not reported" : s.temp + " °C" }), h("small", { text: "Temperature" })),
+      h("div", { class: "mini" }, badge(s.status), h("br"), h("small", { text: "Status" }))),
+    h("p", { text: s.desc }),
+    h("p", { class: "demo-note", style: "margin-top:12px" },
+      h("strong", { text: s.sample ? "Sample data. " : "Your local entry. " }),
+      s.sample ? "Not a verified benchmark. Verification would need a backend and a real testing process."
+               : "Reported by you and saved only in this browser. It is unverified and not shared with other people."));
+  openDialog(d);
+}
+function clearShowFilters() {
+  filters.gpu = "All"; filters.query = "";
+  $("showSearch").value = ""; $("navSearch").value = "";
+  renderTabs(); renderShowcases();
+}
+
+/* --- Compatibility explorer --- */
+function renderCompat() {
+  const q = $("cSearch").value.trim().toLowerCase();
+  const game = $("cGame").value, gpu = $("cGpu").value, st = $("cStatus").value, src = $("cSource").value;
+  const all = compatEntries();
+  // Nothing in this prototype is independently verified, so "verified" always gives zero rows.
+  const list = src === "verified" ? [] : all.filter(c =>
+    (!q || [c.game, c.device, c.emu, c.gpu].join(" ").toLowerCase().includes(q)) &&
+    (!game || c.game === game) && (!gpu || c.gpu === gpu) && (!st || c.status === st));
+  $("compatCount").textContent = list.length + " of " + all.length + " reports";
+  const grid = $("compatGrid"); clear(grid);
+  if (!list.length) {
+    grid.append(h("div", { class: "empty", style: "grid-column:1/-1" },
+      h("strong", { text: src === "verified" ? "No independently verified results" : "No matching reports" }),
+      h("span", { text: src === "verified" ? "This prototype has no way to verify results. Real verification needs a backend and a testing process." : "Try a different search or clear the filters." })));
+    return;
+  }
+  list.forEach(c => grid.append(h("article", { class: "card compat-card" },
+    h("div", { class: "compat-top" }, h("h3", { text: c.game }), badge(c.status)),
+    h("p", { class: "meta", text: c.device + " • " + gpuLabel(c.gpu) }),
+    h("p", { class: "meta", text: "Emulator: " + c.emu + " • " + (c.fps == null ? "No FPS data" : c.fps + " FPS") }),
+    h("div", { class: "chip-row" },
+      h("span", { class: "chip", text: c.mine ? "Your local report" : "Sample data" }),
+      h("span", { class: "chip", text: "Community-reported • unverified" })))));
+}
+
+/* --- Community feed --- */
+function renderFeed() {
+  const feed = $("feed"); clear(feed);
+  const posts = allPosts();
+  $("feedCount").textContent = posts.length + " posts (" + userEntries.length + " yours)";
+  posts.forEach(p => {
+    const list = comments[p.id] || [];
+    const isOpen = !!openComments[p.id];
+    const post = h("article", { class: "card post" },
+      h("div", { class: "post-head" },
+        h("div", { class: "avatar", style: "--hue:" + p.hue, text: p.user[0].toUpperCase() }),
+        h("div", {}, h("b", {}, p.user, h("span", { class: "local-flag", text: p.seed ? "sample" : "local only" })),
+          h("small", { text: ago(p.time) + " • " + p.game }))),
+      h("p", { class: "post-text", text: p.text }),
+      h("div", { class: "post-stats" },
+        h("span", { class: "chip" }, p.fps == null ? "FPS n/a" : [h("b", { text: p.fps }), " FPS"]),
+        h("span", { class: "chip", text: p.res }),
+        h("span", { class: "chip", text: p.temp == null ? "Temp n/a" : p.temp + "°C" }),
+        h("span", { class: "chip", text: p.device }),
+        h("span", { class: "chip", text: p.emu }),
+        h("span", { class: "chip", text: "Unverified" })),
+      h("div", { class: "media-ph", text: "Screenshot / video placeholder (uploads need a backend)" }),
+      h("div", { class: "post-actions" },
+        likeButton("post", p.id, p.likes),
+        h("button", { class: "btn btn-sm", type: "button", "data-key": "cm-" + p.id, "aria-expanded": String(isOpen),
+          onclick: () => { openComments[p.id] = !openComments[p.id]; renderFeed(); refocus("cm-" + p.id); } }, "💬 Comments (" + list.length + ")"),
+        p.seed ? null : h("button", { class: "btn btn-sm btn-ghost", type: "button", onclick: () => deleteEntry(p.id) }, "Delete")));
+    if (isOpen) post.append(commentBox(p, list));
+    feed.append(post);
+  });
+}
+function commentBox(p, list) {
+  const box = h("div", { class: "comments" });
+  if (!list.length) box.append(h("p", { class: "meta", text: "No comments yet." }));
+  list.forEach(c => box.append(h("div", { class: "comment" }, h("b", { text: c.user }), c.text, " ", h("small", { text: ago(c.time) }))));
+  const input = h("input", { type: "text", maxlength: "200", placeholder: "Add a comment...", "aria-label": "Comment on " + p.user + "'s post" });
+  box.append(h("form", { class: "comment-form", onsubmit: (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (text.length < 2) { toast("Comment is too short.", "error"); input.focus(); return; }
+      if ((comments[p.id] || []).length >= 100) { toast("This post has reached the local comment limit.", "error"); return; }
+      (comments[p.id] = comments[p.id] || []).push({ user: myName || "You", text: text.slice(0, 200), time: Date.now() });
+      save(KEYS.comments, comments); renderFeed(); toast("Comment added (local demo).");
+    } }, input, h("button", { class: "btn btn-sm btn-primary", type: "submit" }, "Send")));
+  return box;
+}
+
+/* --- Comparison --- */
+const RES_WIDTH = { "480p": 25, "540p": 30, "720p": 45, "900p": 60, "1080p": 75, "1440p": 90, "4K": 100 };
+function renderCompare() {
+  const list = $("cmpList"); clear(list);
+  const game = $("cmpGame").value;
+  const rows = compareEntries().filter(c => c.game === game).sort((a, b) => b.fps - a.fps);
+  if (!rows.length) { list.append(h("div", { class: "empty" }, h("strong", { text: "No results to compare" }), "Submit a test with an FPS value to see it here.")); return; }
+  const bar = (label, value, pct, warm) => h("div", { class: "stat" },
+    h("div", { class: "stat-line" }, h("span", { text: label }), h("b", { text: value })),
+    h("div", { class: "meter" + (warm ? " warm" : "") }, h("span", { style: "--w:" + pct + "%" })));
+  rows.forEach(r => {
+    list.append(h("article", { class: "card cmp-row" },
+      h("div", { class: "cmp-head" }, h("h3", { text: r.device + (r.mine ? " (yours)" : "") }), h("span", { class: "badge b-issues", text: "Reported, unverified" })),
+      h("div", { class: "cmp-grid" },
+        bar("FPS", r.fps, Math.min(100, r.fps / 60 * 100), true),
+        bar("Resolution", r.res, RES_WIDTH[r.res] || 0, true),
+        bar("Stability", r.stab == null ? "not reported" : r.stab + "%", r.stab == null ? 0 : r.stab, true))));
+  });
+}
+
+/* ---------- 6. SUBMIT FORM ---------- */
+const FIELD_IDS = ["sGame", "sDevice", "sChipset", "sGpu", "sEmu", "sRes", "sFps", "sTemp", "sStatus", "sText"];
+let submitting = false;       // guards against double-taps
+
+function setErr(id, msg) {
+  $("err-" + id).textContent = msg || "";
+  $(id).setAttribute("aria-invalid", msg ? "true" : "false");
+}
+function readForm() {
+  return {
+    game: $("sGame").value.trim(), device: $("sDevice").value.trim(), chipset: $("sChipset").value.trim(),
+    gpu: $("sGpu").value, emu: $("sEmu").value.trim(), res: $("sRes").value, fpsRaw: $("sFps").value.trim(),
+    tempRaw: $("sTemp").value.trim(), status: $("sStatus").value, desc: $("sText").value.trim()
+  };
+}
+function inRange(raw, min, max) { const n = Number(raw); return Number.isInteger(n) && n >= min && n <= max; }
+function validateForm(v) {
+  const errs = {};
+  if (v.game.length < 2 || v.game.length > 60) errs.sGame = "Enter the game name (2–60 characters).";
+  if (v.device.length < 2 || v.device.length > 60) errs.sDevice = "Enter your device name (2–60 characters).";
+  if (v.chipset.length < 2 || v.chipset.length > 40) errs.sChipset = "Enter the chipset (2–40 characters).";
+  if (!GPUS.includes(v.gpu)) errs.sGpu = "Choose a GPU family.";
+  if (v.emu.length < 2 || v.emu.length > 40) errs.sEmu = "Enter the emulator name (2–40 characters).";
+  if (!RES_LIST.includes(v.res)) errs.sRes = "Choose a resolution.";
+  if (v.fpsRaw !== "" && !inRange(v.fpsRaw, 1, 240)) errs.sFps = "FPS must be a whole number from 1 to 240, or leave it empty.";
+  if (v.tempRaw !== "" && !inRange(v.tempRaw, 10, 120)) errs.sTemp = "Temperature must be a whole number from 10 to 120, or leave it empty.";
+  if (!STATUS_KEYS.includes(v.status)) errs.sStatus = "Choose a compatibility status.";
+  if (v.desc.length < 10) errs.sText = "Write at least 10 characters.";
+  else if (v.desc.length > 300) errs.sText = "Keep the description under 300 characters.";
+  FIELD_IDS.forEach(id => setErr(id, errs[id] || ""));
+  const first = FIELD_IDS.find(id => errs[id]);
+  if (first) $(first).focus();
+  return !first;
+}
+function formIsDirty() {
+  return FIELD_IDS.some(id => id !== "sRes" && $(id).value.trim() !== "") || $("sRes").value !== "1080p";
+}
+function resetForm() {
+  $("showForm").reset();
+  FIELD_IDS.forEach(id => setErr(id, ""));
+  $("sCount").textContent = "0/300";
+}
+function openSubmit() {
+  $("formPanel").hidden = false;
+  $("openForm").textContent = "Hide submission form";
+  $("openForm").setAttribute("aria-expanded", "true");
+  goTo("submit");
+  setTimeout(() => $("sGame").focus({ preventScroll: true }), reducedMotion() ? 0 : 450);
+}
+function closeSubmit() {
+  $("formPanel").hidden = true;
+  $("openForm").textContent = "Open submission form";
+  $("openForm").setAttribute("aria-expanded", "false");
+}
+function handleSubmit(e) {
+  e.preventDefault();
+  if (submitting) return;                              // ignore repeated taps
+  const v = readForm();
+  if (!validateForm(v)) { toast("Please fix the highlighted fields.", "error"); return; }
+  if (userEntries.length >= 50) { toast("You've reached the 50-entry local limit. Delete one first.", "error"); return; }
+  const duplicate = userEntries.some(x => x.game === v.game && x.device === v.device && x.emu === v.emu && x.desc === v.desc);
+  if (duplicate) { setErr("sText", "You already submitted this exact entry."); $("sText").focus(); toast("That entry already exists.", "error"); return; }
+
+  submitting = true; $("sSubmit").disabled = true;
+  const entry = cleanEntry({
+    id: "u" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    game: v.game, device: v.device, chipset: v.chipset, gpu: v.gpu, emu: v.emu, res: v.res, status: v.status,
+    fps: v.fpsRaw === "" ? null : Number(v.fpsRaw), temp: v.tempRaw === "" ? null : Number(v.tempRaw),
+    desc: v.desc, author: myName || "You", time: Date.now(), hue: hueFrom(v.game)
+  });
+  if (!entry) { toast("Something was invalid. Please check the form.", "error"); submitting = false; $("sSubmit").disabled = false; return; }
+
+  userEntries.unshift(entry);
+  save(KEYS.entries, userEntries);
+  resetForm(); closeSubmit();
+  clearShowFilters();                                  // make sure the new card is visible
+  renderAll();
+
+  const msg = $("submitMsg");
+  msg.textContent = "Added \"" + entry.game + "\" to the showcase feed. It's saved in this browser only, so other people can't see it.";
+  msg.hidden = false;
+  toast("Showcase added!");
+  goTo("explore");
+  setTimeout(() => { submitting = false; $("sSubmit").disabled = false; }, 800);
+}
+function deleteEntry(id) {
+  if (!confirm("Delete this entry from your local data?")) return;
+  userEntries = userEntries.filter(e => e.id !== id);
+  delete likes[id]; delete comments[id]; delete openComments[id];
+  save(KEYS.entries, userEntries); save(KEYS.likes, likes); save(KEYS.comments, comments);
+  renderAll(); toast("Entry deleted.");
+}
+function resetAll() {
+  if (!confirm("Reset all locally saved data (your entries, likes, comments and name)? This can't be undone.")) return;
+  if (storageOK) [...Object.values(KEYS), ...OLD_KEYS].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+  userEntries = []; likes = Object.create(null); comments = Object.create(null); myName = ""; openComments = Object.create(null);
+  resetForm(); closeSubmit(); $("submitMsg").hidden = true;
+  $("compatFilters").reset(); $("cmpGame").selectedIndex = 0;
+  clearShowFilters(); updateProfileUI(); renderAll();
+  toast("Local data reset.");
+}
+
+/* ---------- 7. EVENTS (each listener is added exactly once) ---------- */
+
+// --- Navigation: every #link scrolls smoothly and closes the mobile menu ---
+const menuBtn = $("menuBtn"), mobileMenu = $("mobileMenu");
+function closeMenu() { mobileMenu.classList.remove("open"); menuBtn.setAttribute("aria-expanded", "false"); menuBtn.setAttribute("aria-label", "Open menu"); }
+menuBtn.addEventListener("click", () => {
+  const open = mobileMenu.classList.toggle("open");
+  menuBtn.setAttribute("aria-expanded", String(open));
+  menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+});
+document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener("click", (e) => {
+  const id = a.getAttribute("href").slice(1);
+  if (!$(id)) return;
+  e.preventDefault();
+  closeMenu();
+  goTo(id);
+}));
+
+// Highlight the current section in the nav
+const navLinks = document.querySelectorAll(".nav-links a");
+const sectionIds = ["home", "explore", "compatibility", "community"];
+window.addEventListener("scroll", () => {
+  let current = "home";
+  sectionIds.forEach(id => { const el = $(id); if (el && el.getBoundingClientRect().top < 140) current = id; });
+  navLinks.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + current));
+}, { passive: true });
+
+// --- Search: the magnifier opens a search bar; both search boxes share one query ---
+const searchBar = $("searchBar");
+function setSearchOpen(open) {
+  searchBar.hidden = !open;
+  $("searchBtn").setAttribute("aria-expanded", String(open));
+  if (open) { closeMenu(); $("navSearch").focus(); }
+}
+$("searchBtn").addEventListener("click", () => setSearchOpen(searchBar.hidden));
+$("navSearchClose").addEventListener("click", () => { setSearchOpen(false); $("searchBtn").focus(); });
+function setQuery(value, from) {
+  filters.query = value;
+  if (from !== "nav") $("navSearch").value = value;
+  if (from !== "show") $("showSearch").value = value;
+  renderShowcases();
+}
+$("navSearch").addEventListener("input", (e) => setQuery(e.target.value, "nav"));
+$("showSearch").addEventListener("input", (e) => setQuery(e.target.value, "show"));
+$("navSearchForm").addEventListener("submit", (e) => { e.preventDefault(); $("navSearch").blur(); goTo("explore"); });
+
+// Escape closes the menu or search bar
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  closeMenu();
+  if (!searchBar.hidden) setSearchOpen(false);
+});
+
+// --- Showcase toolbar ---
+$("showClear").addEventListener("click", () => { clearShowFilters(); toast("Filters cleared."); });
+$("resetBtn").addEventListener("click", resetAll);
+$("footReset").addEventListener("click", resetAll);
+
+// --- Submit form ---
+$("heroSubmit").addEventListener("click", openSubmit);
+$("feedSubmit").addEventListener("click", openSubmit);
+$("openForm").addEventListener("click", () => { if ($("formPanel").hidden) openSubmit(); else closeSubmit(); });
+$("showForm").addEventListener("submit", handleSubmit);
+$("showForm").addEventListener("input", (e) => { if (e.target.id && $("err-" + e.target.id)) setErr(e.target.id, ""); });
+$("sText").addEventListener("input", () => { $("sCount").textContent = $("sText").value.length + "/300"; });
+$("sReset").addEventListener("click", () => { resetForm(); toast("Form reset."); $("sGame").focus(); });
+$("sCancel").addEventListener("click", () => {
+  if (formIsDirty() && !confirm("Discard what you've typed?")) return;
+  resetForm(); closeSubmit(); $("openForm").focus();
+});
+$("sAttach").addEventListener("click", () => notReady("Uploading screenshots or videos"));
+
+// --- Compatibility filters ---
+["cSearch", "cGame", "cGpu", "cStatus", "cSource"].forEach(id => $(id).addEventListener("input", renderCompat));
+$("cClear").addEventListener("click", () => { $("compatFilters").reset(); renderCompat(); toast("Filters cleared."); });
+
+// --- Comparison ---
+$("cmpGame").addEventListener("change", renderCompare);
+
+// --- Footer info dialogs ---
+document.querySelectorAll("[data-info]").forEach(btn => btn.addEventListener("click", () => {
+  const info = INFO[btn.dataset.info], d = $("infoDlg"); clear(d);
+  d.append(h("button", { class: "btn btn-sm dlg-close", type: "button", onclick: () => closeDialog(d) }, "Close"),
+    h("h3", { id: "iTitle", text: info.t }), h("p", { style: "margin-top:10px;color:var(--muted)", text: info.b }));
+  openDialog(d);
+}));
+
+// --- Profile (demo sign-in) ---
+function updateProfileUI() { $("profileBtn").textContent = myName || "Sign in"; }
+$("profileBtn").addEventListener("click", () => { $("prName").value = myName; $("ePr").textContent = ""; openDialog($("profileDlg")); });
+$("prClose").addEventListener("click", () => closeDialog($("profileDlg")));
+$("profileForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const n = $("prName").value.trim();
+  if (n.length < 2 || n.length > 20) { $("ePr").textContent = "Name must be 2–20 characters."; return; }
+  myName = n; save(KEYS.name, myName); updateProfileUI(); closeDialog($("profileDlg")); toast("Saved. Welcome, " + n + "!");
+});
+$("prOut").addEventListener("click", () => {
+  myName = ""; if (storageOK) { try { localStorage.removeItem(KEYS.name); } catch (e) {} }
+  updateProfileUI(); closeDialog($("profileDlg")); toast("Signed out of demo profile.");
+});
+
+// Tap the dark backdrop to close a dialog
+document.querySelectorAll("dialog").forEach(d => d.addEventListener("click", (e) => { if (e.target === d) closeDialog(d); }));
+
+/* ---------- 8. START ---------- */
+$("creator").textContent = CREATOR;
+if (!storageOK) $("storageWarn").hidden = false;
+updateProfileUI();
+renderAll();
+</script>
+</body>
+</html>
